@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pulse Sales Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Primary">
+      <div class="brand">
+        <span class="brand-mark">P</span>
+        <div>
+          <strong>Pulse</strong>
+          <span>Sales command center</span>
+        </div>
+      </div>
+
+      <nav class="nav-list">
+        <button class="nav-item active" type="button" aria-label="Dashboard">
+          <span class="nav-icon">H</span>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item" type="button" aria-label="Pipeline">
+          <span class="nav-icon">P</span>
+          <span>Pipeline</span>
+        </button>
+        <button class="nav-item" type="button" aria-label="Forecast">
+          <span class="nav-icon">F</span>
+          <span>Forecast</span>
+        </button>
+        <button class="nav-item" type="button" aria-label="Accounts">
+          <span class="nav-icon">A</span>
+          <span>Accounts</span>
+        </button>
+      </nav>
+
+      <section class="coach-panel">
+        <span class="eyebrow">Today</span>
+        <h2>Sales focus</h2>
+        <p id="coachText">Loading signals...</p>
+        <div class="mini-progress" aria-hidden="true">
+          <span style="width: 74%"></span>
+        </div>
+      </section>
+    </aside>
+
+    <main class="dashboard">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Lead, pipeline, and rep performance</p>
+          <h1>Sales Dashboard</h1>
+        </div>
+        <div class="topbar-actions">
+          <label class="search-box">
+            <span>Search</span>
+            <input id="searchInput" type="search" placeholder="Search accounts, reps, regions">
+          </label>
+          <button id="resetBtn" class="icon-button" type="button" title="Reset filters" aria-label="Reset filters">R</button>
+        </div>
+      </header>
+
+      <section class="filter-band" aria-label="Dashboard filters">
+        <label>
+          <span>Period</span>
+          <select id="periodFilter">
+            <option value="all">All quarters</option>
+            <option value="Q1">Q1</option>
+            <option value="Q2">Q2</option>
+            <option value="Q3">Q3</option>
+            <option value="Q4">Q4</option>
+          </select>
+        </label>
+        <label>
+          <span>Region</span>
+          <select id="regionFilter">
+            <option value="all">All regions</option>
+          </select>
+        </label>
+        <label>
+          <span>Segment</span>
+          <select id="segmentFilter">
+            <option value="all">All segments</option>
+          </select>
+        </label>
+        <label>
+          <span>Minimum confidence</span>
+          <input id="confidenceFilter" type="range" min="0" max="100" value="0">
+        </label>
+        <output id="confidenceValue">0%</output>
+      </section>
+
+      <section class="kpi-grid" aria-label="Key metrics">
+        <article class="kpi-card">
+          <span class="card-label">Closed sales</span>
+          <strong id="closedRevenue">$0</strong>
+          <span id="closedDelta" class="delta">+0%</span>
+        </article>
+        <article class="kpi-card">
+          <span class="card-label">Open pipeline</span>
+          <strong id="weightedPipeline">$0</strong>
+          <span class="delta cool">Open accounts</span>
+        </article>
+        <article class="kpi-card">
+          <span class="card-label">Sales conversion</span>
+          <strong id="winRate">0%</strong>
+          <span id="dealCount" class="delta">0 accounts</span>
+        </article>
+        <article class="kpi-card">
+          <span class="card-label">Avg sale value</span>
+          <strong id="avgDeal">$0</strong>
+          <span class="delta warm">Target $72K</span>
+        </article>
+      </section>
+
+      <section class="content-grid">
+        <article class="panel revenue-panel">
+          <div class="panel-header">
+            <div>
+              <span class="card-label">Sales trend</span>
+              <h2>Closed sales vs open pipeline</h2>
+            </div>
+            <div class="legend">
+              <span><i class="dot closed"></i>Closed</span>
+              <span><i class="dot pipe"></i>Pipeline</span>
+            </div>
+          </div>
+          <canvas id="revenueChart" height="280" aria-label="Sales trend bar chart"></canvas>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <span class="card-label">Pipeline health</span>
+              <h2>Deals by stage</h2>
+            </div>
+          </div>
+          <div id="stageList" class="stage-list"></div>
+        </article>
+
+        <article class="panel region-panel">
+          <div class="panel-header">
+            <div>
+              <span class="card-label">Sales territories</span>
+              <h2>Region performance</h2>
+            </div>
+          </div>
+          <div id="regionGrid" class="region-grid"></div>
+        </article>
+
+        <article class="panel spotlight-panel">
+          <span class="card-label">Priority account</span>
+          <h2 id="spotlightName">Loading...</h2>
+          <p id="spotlightMeta"></p>
+          <div class="spotlight-score">
+            <svg viewBox="0 0 120 120" role="img" aria-label="Confidence score">
+              <circle class="ring-bg" cx="60" cy="60" r="48"></circle>
+              <circle id="scoreRing" class="ring-fg" cx="60" cy="60" r="48"></circle>
+            </svg>
+            <strong id="spotlightScore">0%</strong>
+          </div>
+          <button id="nextBestBtn" class="primary-button" type="button">Next best action</button>
+          <p id="nextBestText" class="next-best"></p>
+        </article>
+      </section>
+
+      <section class="panel table-panel">
+        <div class="panel-header">
+          <div>
+            <span class="card-label">Sales pipeline</span>
+            <h2>Active accounts</h2>
+          </div>
+          <div class="segmented" aria-label="Sort deals">
+            <button class="segment active" data-sort="value" type="button">Value</button>
+            <button class="segment" data-sort="confidence" type="button">Confidence</button>
+            <button class="segment" data-sort="closeDay" type="button">Close</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Account</th>
+                <th>Rep</th>
+                <th>Region</th>
+                <th>Stage</th>
+                <th>Value</th>
+                <th>Confidence</th>
+                <th>Close</th>
+              </tr>
+            </thead>
+            <tbody id="dealTable"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
